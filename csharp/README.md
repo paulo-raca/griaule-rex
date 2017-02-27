@@ -1,4 +1,4 @@
-# Rex Controller C#
+# Rex Controller .Net
 
 C# implementation of [Griaule REX Controller](http://www.griaulebiometrics.com/pt-br/rex).
 
