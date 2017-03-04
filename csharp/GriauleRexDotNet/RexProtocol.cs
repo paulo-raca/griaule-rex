@@ -56,18 +56,17 @@ namespace GriauleRexDotNet
 			RawMessageReceivedEventHandler listener = RawListeners [cmd];
 			if (listener != null) {
 				listener (payload);
+			} else {
+				Console.WriteLine (this + ": Unhandled message " + cmd);
 			}
-			Console.WriteLine (this + ": Handled message " + cmd);
 		}
 
-		protected async Task<byte[]> WaitResponse(int cmd) {
-			//TODO: Cancel the task if the connection closes
-
-			TaskCompletionSource<byte[]> task = new TaskCompletionSource<byte[]>();
+		protected async Task<T> WaitResponseAsync<T>(int cmd, Func<byte[], T> handler) {
+			TaskCompletionSource<T> task = new TaskCompletionSource<T>();
 			RawMessageReceivedEventHandler wrapper = null;
 			wrapper = (payload) => {
 				RawListeners [cmd] -= wrapper;
-				task.SetResult(payload);
+				task.SetResult(handler(payload));
 			};
 			RawListeners [cmd] += wrapper;
 			return await task.Task;

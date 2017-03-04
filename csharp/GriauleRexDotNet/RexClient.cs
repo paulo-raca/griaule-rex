@@ -15,19 +15,19 @@ namespace GriauleRexDotNet {
 		private UdpClient udpClient;
 		private TcpListener tcpServer;
 
-		public delegate bool RexDiscoveryEventHandler(String name, PhysicalAddress mac, IPAddress ip, IPAddress mask, IPAddress gateway);
-		public event RexDiscoveryEventHandler RexDiscovered;
+		public delegate void RexDiscoveryEventHandler(String name, PhysicalAddress mac, IPAddress ip, IPAddress mask, IPAddress gateway);
+		public event RexDiscoveryEventHandler Discovered;
 
-		public delegate bool RexConnectionEventHandler(RexDevice rex);
-		public event RexConnectionEventHandler RexConnected;
-		public event RexConnectionEventHandler RexDisconnected;
+		public delegate void RexConnectionEventHandler(RexDevice rex);
+		public event RexConnectionEventHandler Connected;
+		public event RexConnectionEventHandler Disconnected;
 
 		public RexClient(int tcpPort = 0) {
 			this.RawListeners[COMMAND_DISCOVERY] += RawDiscoveryReceived;
 			udpClient = new UdpClient (PORT_DISCOVERY);
 			tcpServer = new TcpListener (IPAddress.Parse("0.0.0.0"), tcpPort);
-			ReceiveDiscoveryLoop();
-			ReceiveConnectionsLoop();
+			ReceiveDiscoveryLoopAsync();
+			ReceiveConnectionsLoopAsync();
 		}
 
 		public void Dispose() {
@@ -45,25 +45,22 @@ namespace GriauleRexDotNet {
 			IPAddress mask = new IPAddress(stream.ReadFully(4));
 			IPAddress gateway = new IPAddress(stream.ReadFully(4));
 
-			if (RexDiscovered != null) {
-				bool ret = RexDiscovered (name, mac, ip, mask, gateway);
-				if (ret) {
-					SendConnectionRequest (ip);
-				}
+			if (Discovered != null) {
+				Discovered (name, mac, ip, mask, gateway);
 			}
 		}
 
-		protected async Task SendMessage (int cmd, byte[] payload, IPEndPoint destination) {
+		protected void SendMessage (int cmd, byte[] payload, IPEndPoint destination) {
 			MemoryStream stream = new MemoryStream (payload.Length + 12);
 			stream.WriteInt (PROTOCOL_PREFIX);
 			stream.WriteInt (cmd);
 			stream.WriteInt (payload.Length);
 			stream.WriteFully (payload);
 
-			await udpClient.SendAsync (stream.GetBuffer(), (int)stream.Length, destination);
+			udpClient.Send (stream.GetBuffer(), (int)stream.Length, destination);
 		}
 
-		public void SendConnectionRequest(IPAddress rexAddress) {
+		public void RequestConnection(IPAddress rexAddress) {
 			foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces()) {
 				if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
 				{
@@ -93,30 +90,37 @@ namespace GriauleRexDotNet {
 			}
 		}
 
-		private async Task ReceiveDiscoveryLoop() {
+		private async Task ReceiveDiscoveryLoopAsync() {
 			while (true) {
 				UdpReceiveResult package;
 				try {
 					package = await udpClient.ReceiveAsync ();
 				} catch (ObjectDisposedException) {
-					Console.WriteLine ("break listenRequests()");
+					//Console.WriteLine ("break listenRequests()");
 					break;
 				}
 				parseRawMessage (package.Buffer);
 			}
 		}
 
-		private async Task ReceiveConnectionsLoop() {
+		private async Task ReceiveConnectionsLoopAsync() {
 			tcpServer.Start ();
 			while (true) {
 				TcpClient socket;
 				try {
 					socket = await tcpServer.AcceptTcpClientAsync();
 				} catch (ObjectDisposedException) {
-					Console.WriteLine ("break listenConnections()");
+					//Console.WriteLine ("break listenConnections()");
 					break;
 				}
-				new RexDevice (this, socket.GetStream());
+				RexDevice rex = new RexDevice (socket.GetStream());
+				rex.Connected += () => {
+					if (Connected != null) Connected(rex);
+				};
+				rex.Disconnected += () => {
+					if (Disconnected != null) Disconnected(rex);
+				};
+				rex.InitializeAsync ();
 			}
 		}
 	}
