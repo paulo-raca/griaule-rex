@@ -26,6 +26,8 @@ namespace GriauleRexDotNet {
 		public event Action Disconnected;
 		public bool IsConnected { get; private set; }
 
+		public event Action<char> KeyTyped;
+
 		public RexDevice(Stream stream) {
 			this.stream = stream;
 			this.IsConnected = true;
@@ -67,6 +69,14 @@ namespace GriauleRexDotNet {
 						this.DigitalInputs[index].Value = value;
 					};
 
+					this.RawListeners[COMMAND_KEY_TYPED] += (payload) => {
+						Stream stream = new MemoryStream(payload);
+						int key = stream.ReadInt();
+						if (this.KeyTyped != null) {
+							this.KeyTyped((char)key);
+						}
+					};
+
 					List<DigitalOutput> relays = new List<DigitalOutput> ();
 					for (int i = 0; i < this.Features.NumRelays; i++) {
 						relays.Add(new DigitalOutput(this, DigitalOutput.DigitalOutputType.Relay, i));
@@ -105,7 +115,7 @@ namespace GriauleRexDotNet {
 					try {
 						int len = await stream.ReadIntAsync();
 						rawMsg = await stream.ReadFullyAsync(len-4);
-					} catch (Exception e) {
+					} catch (Exception) {
 						break;
 					}
 					parseRawMessage(rawMsg);

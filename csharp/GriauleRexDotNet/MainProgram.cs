@@ -36,6 +36,9 @@ namespace GriauleRexDotNet {
 							Console.WriteLine ("Input changed: " + input);
 						};
 					}
+					rex.KeyTyped += (key) => {
+						Console.WriteLine ("Key typed: " + key);
+					};
 					toggleRandomStuff(rex);
 					closeAfter(rex, 10);
 				};
