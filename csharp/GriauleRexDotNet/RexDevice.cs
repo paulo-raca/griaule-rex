@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.IO;
 using System.Net.Sockets;
 using System.Net;
@@ -27,6 +28,7 @@ namespace GriauleRexDotNet {
 		public bool IsConnected { get; private set; }
 
 		public event Action<char> KeyTyped;
+		public event Action<String, Bitmap> FingerprintCaptured;
 
 		public RexDevice(Stream stream) {
 			this.stream = stream;
@@ -76,6 +78,34 @@ namespace GriauleRexDotNet {
 							this.KeyTyped((char)key);
 						}
 					};
+
+					this.RawListeners[COMMAND_IMAGE_ACQUIRED] += (payload) => {
+						Stream stream = new MemoryStream(payload);
+						int width = stream.ReadInt();
+						int height = stream.ReadInt();
+						int resX = stream.ReadInt();
+						int resY = stream.ReadInt();
+						byte[] rawImage = stream.ReadFully(width * height);
+						String scanner = STRING_ENCODING.GetString(stream.ReadFully((int)(stream.Length - stream.Position)));
+
+						//Create a grayscale bitmap -- DotNet sucks, therefore it uses a pallete
+						Bitmap bitmap = new Bitmap(width, height, System.Drawing.Imaging.PixelFormat.Format24bppRgb);
+						bitmap.SetResolution(resX, resY);
+
+						int i = 0;
+						for (int y = 0; y < height; y++) {
+							for (int x = 0; x < width; x++) {
+								byte v = rawImage[i++];
+								bitmap.SetPixel(x, y, Color.FromArgb(v, v, v));
+							}
+						}
+
+						if (FingerprintCaptured != null) {
+							FingerprintCaptured(scanner, bitmap);
+						}
+
+					};
+
 
 					List<DigitalOutput> relays = new List<DigitalOutput> ();
 					for (int i = 0; i < this.Features.NumRelays; i++) {

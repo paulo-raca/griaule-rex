@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Net;
 using System.Threading;
 using System.Net.NetworkInformation;
@@ -38,6 +39,15 @@ namespace GriauleRexDotNet {
 					}
 					rex.KeyTyped += (key) => {
 						Console.WriteLine ("Key typed: " + key);
+					};
+					rex.FingerprintCaptured += (scanner, fingerprint) => {
+						String file = rex.Id + "-" + scanner + ".jpg";
+						using (FileStream fs = File.Create(file)) {
+							fingerprint.Save(fs, System.Drawing.Imaging.ImageFormat.Jpeg); // Aparently ignores the DPI when saving the image... :(
+							Console.WriteLine ("Fingerprint captured: " + file + ", " 
+								+ fingerprint.Width + "x" + fingerprint.Height
+								+ " @" + (int)Math.Sqrt(fingerprint.HorizontalResolution * fingerprint.VerticalResolution) + "dpi");
+						}
 					};
 					toggleRandomStuff(rex);
 					closeAfter(rex, 10);
