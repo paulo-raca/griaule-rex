@@ -32,6 +32,12 @@ namespace GriauleRexDotNet
 		protected const int COMMAND_DISPLAY_MOVE             = 0x24;
 		protected const int COMMAND_DISPLAY_WRITE            = 0x28;
 
+		protected const int COMMAND_RS232_OPEN       = 0x32;
+		protected const int COMMAND_RS232_SET_MODE   = 0x33;
+		protected const int COMMAND_RS232_READ       = 0x34;
+		protected const int COMMAND_RS232_WRITE      = 0x35;
+		protected const int COMMAND_RS232_CLOSE      = 0x36;
+
 		protected delegate void RawMessageReceivedEventHandler(byte[] args);
 
 		protected DefaultDictionary<int, RawMessageReceivedEventHandler> RawListeners =

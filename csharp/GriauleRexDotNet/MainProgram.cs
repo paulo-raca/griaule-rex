@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
+using System.Text;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
@@ -49,6 +50,7 @@ namespace GriauleRexDotNet {
 								+ " @" + (int)Math.Sqrt(fingerprint.HorizontalResolution * fingerprint.VerticalResolution) + "dpi");
 						}
 					};
+					testSerialPorts(rex);
 					toggleRandomStuff(rex);
 					closeAfter(rex, 10);
 				};
@@ -68,7 +70,22 @@ namespace GriauleRexDotNet {
 			await Task.Delay (secs * 1000);
 			rex.Dispose();
 		}
-			
+
+		private static async void testSerialPorts(RexDevice rex) {
+			try {
+				while (true) {
+					foreach (RexDevice.SerialPort serial in rex.SerialPorts) {
+						using (Stream stream = serial.Open()) {
+							stream.WriteFully(Encoding.ASCII.GetBytes("Foo Bar 123\n"));
+							stream.Dispose();
+						}
+						await Task.Delay (500);
+					}
+				}
+			} catch (ObjectDisposedException) {
+				Console.WriteLine ("Rex has disconnected, stopping testSerialPorts()");
+			}
+		}
 
 		private static async void toggleRandomStuff(RexDevice rex) {
 			try {
