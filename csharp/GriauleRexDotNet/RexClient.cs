@@ -22,10 +22,18 @@ namespace GriauleRexDotNet {
 		public event RexConnectionEventHandler Connected;
 		public event RexConnectionEventHandler Disconnected;
 
-		public RexClient(int tcpPort = 0) {
+		public RexClient(int localPort = 0) 
+			: this (IPAddress.Any, localPort) 
+		{ }
+
+		public RexClient(IPAddress localAddress, int localPort = 0)
+			: this (new IPEndPoint(localAddress, localPort))
+		{ }
+
+		public RexClient(IPEndPoint localEndpoint) {
 			this.RawListeners[COMMAND_DISCOVERY] += RawDiscoveryReceived;
-			udpClient = new UdpClient (PORT_DISCOVERY);
-			tcpServer = new TcpListener (IPAddress.Parse("0.0.0.0"), tcpPort);
+			udpClient = new UdpClient (new IPEndPoint(localEndpoint.Address, PORT_DISCOVERY));
+			tcpServer = new TcpListener (localEndpoint);
 			ReceiveDiscoveryLoopAsync();
 			ReceiveConnectionsLoopAsync();
 		}
@@ -60,34 +68,30 @@ namespace GriauleRexDotNet {
 			udpClient.Send (stream.GetBuffer(), (int)stream.Length, destination);
 		}
 
-		public void RequestConnection(IPAddress rexAddress) {
-			foreach (NetworkInterface netInterface in NetworkInterface.GetAllNetworkInterfaces()) {
-				if (netInterface.NetworkInterfaceType == NetworkInterfaceType.Loopback)
-				{
-					continue;
-				}
+		public void RequestConnection(IPAddress rexAddress, int rexPort = PORT_CONNECTION_REQUEST) {
+			RequestConnection(new IPEndPoint(rexAddress, rexPort));
+		}
 
-				foreach (UnicastIPAddressInformation addr in netInterface.GetIPProperties().UnicastAddresses)
-				{
-					IPAddress serverAddress = addr.Address;
-					if (serverAddress.AddressFamily == AddressFamily.InterNetwork) {
-						MemoryStream stream = new MemoryStream (12);
-
-						// Unknown
-						stream.WriteInt (0); 
-
-						//IP Address (Reversed)
-						stream.WriteByte(serverAddress.GetAddressBytes()[3]);
-						stream.WriteByte(serverAddress.GetAddressBytes()[2]);
-						stream.WriteByte(serverAddress.GetAddressBytes()[1]);
-						stream.WriteByte(serverAddress.GetAddressBytes()[0]);
-
-						stream.WriteInt (((IPEndPoint)tcpServer.LocalEndpoint).Port); 
-
-						SendMessage(COMMAND_CONNECTION_REQUEST, stream.GetBuffer(), new IPEndPoint(rexAddress, PORT_CONNECTION_REQUEST));
-					}
-				}
+		public void RequestConnection(IPEndPoint rexUdpEndpoint, IPEndPoint localTcpEndpoint = null) {
+			if (localTcpEndpoint == null) {
+				localTcpEndpoint = GetLocalEndPointFor (rexUdpEndpoint.Address, ((IPEndPoint)tcpServer.LocalEndpoint).Port);
 			}
+			// Console.WriteLine ("RequestConnection: " + rexEndpoint + " to " + localEndpoint );
+
+			MemoryStream stream = new MemoryStream (12);
+
+			// Unknown
+			stream.WriteInt (0); 
+
+			//IP Address (Reversed)
+			stream.WriteByte(localTcpEndpoint.Address.GetAddressBytes()[3]);
+			stream.WriteByte(localTcpEndpoint.Address.GetAddressBytes()[2]);
+			stream.WriteByte(localTcpEndpoint.Address.GetAddressBytes()[1]);
+			stream.WriteByte(localTcpEndpoint.Address.GetAddressBytes()[0]);
+
+			stream.WriteInt (localTcpEndpoint.Port);
+
+			SendMessage(COMMAND_CONNECTION_REQUEST, stream.GetBuffer(), rexUdpEndpoint);
 		}
 
 		private async Task ReceiveDiscoveryLoopAsync() {
@@ -121,6 +125,18 @@ namespace GriauleRexDotNet {
 					if (Disconnected != null) Disconnected(rex);
 				};
 				rex.InitializeAsync ();
+			}
+		}
+
+
+		private static IPEndPoint GetLocalEndPointFor(IPAddress remote, int localPort) {
+			// http://stackoverflow.com/a/14141114/995480
+			using (Socket s = new Socket(remote.AddressFamily, SocketType.Dgram, ProtocolType.IP)) {
+				// Just picked a random port, you could make this application
+				// specific if you want, but I don't think it really matters
+				s.Connect(new IPEndPoint(remote, localPort));
+
+				return new IPEndPoint(((IPEndPoint)s.LocalEndPoint).Address, localPort);
 			}
 		}
 	}
