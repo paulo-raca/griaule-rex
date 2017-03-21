@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using System.Threading.Tasks;
 
-namespace GriauleRexDotNet {
+namespace GriauleRex {
 	
 	public static class StreamHack {
 		

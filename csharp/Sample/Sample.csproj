@@ -30,17 +30,17 @@
     <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="MainProgram.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <ProjectReference Include="..\GriauleRex\GriauleRex.csproj">
+      <Project>{1F941149-6E7F-4215-9963-98C9A7F77F12}</Project>
+      <Name>GriauleRex</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Drawing" />
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StreamHack.cs" />
-    <Compile Include="Util.cs" />
-    <Compile Include="RexClient.cs" />
-    <Compile Include="MainProgram.cs" />
-    <Compile Include="RexProtocol.cs" />
-    <Compile Include="RexDevice.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

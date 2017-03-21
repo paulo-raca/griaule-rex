@@ -6,8 +6,9 @@ using System.Text;
 using System.Threading;
 using System.Net.NetworkInformation;
 using System.Threading.Tasks;
+using GriauleRex;
 
-namespace GriauleRexDotNet {
+namespace Sample {
 	
 	public static class MainProgram {
 

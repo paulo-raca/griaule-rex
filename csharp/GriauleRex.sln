@@ -1,7 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2012
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GriauleRexDotNet", "GriauleRexDotNet\GriauleRexDotNet.csproj", "{10DF6BCB-F561-4097-A0BD-F0795FA83535}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Sample", "Sample\Sample.csproj", "{10DF6BCB-F561-4097-A0BD-F0795FA83535}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GriauleRex", "GriauleRex\GriauleRex.csproj", "{1F941149-6E7F-4215-9963-98C9A7F77F12}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -13,5 +15,9 @@ Global
 		{10DF6BCB-F561-4097-A0BD-F0795FA83535}.Debug|x86.Build.0 = Debug|x86
 		{10DF6BCB-F561-4097-A0BD-F0795FA83535}.Release|x86.ActiveCfg = Release|x86
 		{10DF6BCB-F561-4097-A0BD-F0795FA83535}.Release|x86.Build.0 = Release|x86
+		{1F941149-6E7F-4215-9963-98C9A7F77F12}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{1F941149-6E7F-4215-9963-98C9A7F77F12}.Debug|x86.Build.0 = Debug|Any CPU
+		{1F941149-6E7F-4215-9963-98C9A7F77F12}.Release|x86.ActiveCfg = Release|Any CPU
+		{1F941149-6E7F-4215-9963-98C9A7F77F12}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

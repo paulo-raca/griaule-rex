@@ -8,7 +8,7 @@ using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace GriauleRexDotNet {
+namespace GriauleRex {
 	public class RexDevice : RexProtocol, IDisposable {
 
 		private object sendLock = new object ();

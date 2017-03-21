@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GriauleRexDotNet
+namespace GriauleRex
 {
 	public abstract class RexProtocol {
 		
