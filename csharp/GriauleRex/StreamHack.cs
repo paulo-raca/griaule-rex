@@ -3,7 +3,7 @@ using System.Threading.Tasks;
 
 namespace GriauleRex {
 	
-	public static class StreamHack {
+	internal static class StreamHack {
 		
 		public static int ReadInt(this Stream stream) {
 			byte[] bytes = stream.ReadFully(4);
@@ -34,8 +34,6 @@ namespace GriauleRex {
 			};
 			await stream.WriteFullyAsync(bytes);
 		}
-
-
 
 		public static byte[] ReadFully(this Stream stream, int len) {
 			byte[] buffer = new byte[len];
@@ -75,5 +73,4 @@ namespace GriauleRex {
 			await stream.WriteAsync (value, 0, value.Length);
 		}
 	}
-
 }

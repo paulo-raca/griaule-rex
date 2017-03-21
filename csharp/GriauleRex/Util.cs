@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace GriauleRex
-{
-	public static class Util
-	{
+namespace GriauleRex {
+
+	internal static class Util {
+
 		public static byte[] parseHex(string hex) {
 			return Enumerable.Range(0, hex.Length)
 				.Where(x => x % 2 == 0)
@@ -14,23 +14,19 @@ namespace GriauleRex
 		}
 	}
 
-	public class DefaultDictionary<TKey, TValue> : Dictionary<TKey, TValue> 
-	{
-		public new TValue this[TKey key]
-		{
-			get
-			{
+	public class DefaultDictionary<TKey, TValue> : Dictionary<TKey, TValue> {
+		
+		public new TValue this[TKey key] {
+			get {
 				TValue val;
-				if (!TryGetValue(key, out val))
-				{
+				if (!TryGetValue(key, out val)) {
 					val = default(TValue);
 					Add(key, val);
 				}
 				return val;
 			}
 
-			set 
-			{ 
+			set { 
 				base[key] = value; 
 			}
 		}

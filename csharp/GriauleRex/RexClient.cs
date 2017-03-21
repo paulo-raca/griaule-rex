@@ -18,9 +18,8 @@ namespace GriauleRex {
 		public delegate void RexDiscoveryEventHandler(String name, PhysicalAddress mac, IPAddress ip, IPAddress mask, IPAddress gateway);
 		public event RexDiscoveryEventHandler Discovered;
 
-		public delegate void RexConnectionEventHandler(RexDevice rex);
-		public event RexConnectionEventHandler Connected;
-		public event RexConnectionEventHandler Disconnected;
+		public event Action<RexDevice> Connected;
+		public event Action<RexDevice> Disconnected;
 
 		public RexClient(int localPort = 0) 
 			: this (IPAddress.Any, localPort) 
@@ -38,27 +37,7 @@ namespace GriauleRex {
 			ReceiveConnectionsLoopAsync();
 		}
 
-		public void Dispose() {
-			udpClient.Close ();
-			tcpServer.Stop ();
-			//TODO: await ReceiveDiscoveryLoop and ReceiveConnectionsLoop
-		}
-
-		private void RawDiscoveryReceived(byte[] payload) {
-			MemoryStream stream = new MemoryStream (payload);
-
-			String name = STRING_ENCODING.GetString(stream.ReadFully(12));
-			PhysicalAddress mac = new PhysicalAddress(Util.parseHex(STRING_ENCODING.GetString(stream.ReadFully(12))));
-			IPAddress ip = new IPAddress(stream.ReadFully(4));
-			IPAddress mask = new IPAddress(stream.ReadFully(4));
-			IPAddress gateway = new IPAddress(stream.ReadFully(4));
-
-			if (Discovered != null) {
-				Discovered (name, mac, ip, mask, gateway);
-			}
-		}
-
-		protected void SendMessage (int cmd, byte[] payload, IPEndPoint destination) {
+		private void SendMessage (int cmd, byte[] payload, IPEndPoint destination) {
 			MemoryStream stream = new MemoryStream (payload.Length + 12);
 			stream.WriteInt (PROTOCOL_PREFIX);
 			stream.WriteInt (cmd);
@@ -94,6 +73,26 @@ namespace GriauleRex {
 			SendMessage(COMMAND_CONNECTION_REQUEST, stream.GetBuffer(), rexUdpEndpoint);
 		}
 
+		public void Dispose() {
+			udpClient.Close ();
+			tcpServer.Stop ();
+			//TODO: await ReceiveDiscoveryLoop and ReceiveConnectionsLoop
+		}
+
+		private void RawDiscoveryReceived(byte[] payload) {
+			MemoryStream stream = new MemoryStream (payload);
+
+			String name = STRING_ENCODING.GetString(stream.ReadFully(12));
+			PhysicalAddress mac = new PhysicalAddress(Util.parseHex(STRING_ENCODING.GetString(stream.ReadFully(12))));
+			IPAddress ip = new IPAddress(stream.ReadFully(4));
+			IPAddress mask = new IPAddress(stream.ReadFully(4));
+			IPAddress gateway = new IPAddress(stream.ReadFully(4));
+
+			if (Discovered != null) {
+				Discovered (name, mac, ip, mask, gateway);
+			}
+		}
+
 		private async Task ReceiveDiscoveryLoopAsync() {
 			while (true) {
 				UdpReceiveResult package;
@@ -127,7 +126,6 @@ namespace GriauleRex {
 				rex.InitializeAsync ();
 			}
 		}
-
 
 		private static IPEndPoint GetLocalEndPointFor(IPAddress remote, int localPort) {
 			// http://stackoverflow.com/a/14141114/995480

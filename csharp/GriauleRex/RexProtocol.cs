@@ -1,11 +1,11 @@
-﻿using System;
+using System;
 using System.IO;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace GriauleRex
-{
+namespace GriauleRex {
+
 	public abstract class RexProtocol {
 		
 		protected static Encoding STRING_ENCODING = Encoding.ASCII;
@@ -79,4 +79,3 @@ namespace GriauleRex
 		}
 	}
 }
-

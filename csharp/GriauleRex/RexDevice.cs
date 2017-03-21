@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -9,11 +9,12 @@ using System.Threading;
 using System.Threading.Tasks;
 
 namespace GriauleRex {
+	
 	public class RexDevice : RexProtocol, IDisposable {
 
 		private object sendLock = new object ();
 		private Stream stream;
-		internal Task ReceiveLoopTask;
+		private Task ReceiveLoopTask;
 
 		public String Id { get; private set; }
 		public RexFeatures Features { get; private set; }
@@ -58,7 +59,7 @@ namespace GriauleRex {
 
 			await SendMessageAndWaitResponseAsync (COMMAND_FEATURES_REQUEST, COMMAND_FEATURES_RESPONSE, new byte[0], 
 				(raw) => {
-					this.Features = new RexFeatures (raw);
+					this.Features = new RexFeatures (this, raw);
 
 
 					List<DigitalInput> digitalInputs = new List<DigitalInput> ();
@@ -195,6 +196,8 @@ namespace GriauleRex {
 
 
 		public struct RexFeatures {
+			
+			public readonly RexDevice Rex;
 			public readonly int NumDigitalInputs;
 			public readonly int NumRelays;
 			public readonly int NumLeds;
@@ -206,7 +209,9 @@ namespace GriauleRex {
 			public readonly bool HasMP3;
 			public readonly Version Version;
 
-			public RexFeatures(byte[] payload) {
+			internal RexFeatures(RexDevice rex, byte[] payload) {
+				this.Rex = rex;
+
 				Stream stream = new MemoryStream(payload);
 				this.NumRelays = stream.ReadInt();
 				this.NumSerialPorts = stream.ReadInt();
@@ -231,14 +236,14 @@ namespace GriauleRex {
 
 
 		public class DigitalInput {
+			
 			public readonly RexDevice Rex;
 			public readonly int Index;
 			private bool _value;
 
-			public delegate void InputChangedEventHandler(bool newValue);
-			public event InputChangedEventHandler InputChanged;
+			public event Action<bool> InputChanged;
 
-			public DigitalInput(RexDevice rex, int index) {
+			internal DigitalInput(RexDevice rex, int index) {
 				this.Rex = rex;
 				this.Index = index;
 				this.Value = false;
@@ -265,6 +270,7 @@ namespace GriauleRex {
 
 
 		public class SerialPort {
+			
 			public readonly RexDevice Rex;
 			public readonly int Index;
 			private Stream _stream;
@@ -281,7 +287,7 @@ namespace GriauleRex {
 				Hardware = 2
 			};
 
-			public SerialPort(RexDevice rex, int index) {
+			internal SerialPort(RexDevice rex, int index) {
 				this.Rex = rex;
 				this.Index = index;
 				this._stream = null;
@@ -318,6 +324,7 @@ namespace GriauleRex {
 			}
 
 			private class SerialPortStream : Stream {
+				
 				public readonly SerialPort Serial;
 				private bool _closed = false;
 				internal Queue<byte> _inputBuffer = new Queue<byte> ();
@@ -330,7 +337,6 @@ namespace GriauleRex {
 				public override long Position { get { throw new NotSupportedException (); } set { throw new NotSupportedException (); } }
 				public override int ReadTimeout { get { throw new InvalidOperationException (); } }
 				public override int WriteTimeout { get { throw new InvalidOperationException (); } }
-				//public override bool CanWrite = true;
 
 				public SerialPortStream(SerialPort Serial) {
 					this.Serial = Serial;
@@ -416,7 +422,7 @@ namespace GriauleRex {
 			public readonly DigitalOutputType Type;
 			public readonly int Index;
 
-			public DigitalOutput(RexDevice rex, DigitalOutputType type, int index) {
+			internal DigitalOutput(RexDevice rex, DigitalOutputType type, int index) {
 				this.Rex = rex;
 				this.Type = type;
 				this.Index = index;
@@ -461,7 +467,7 @@ namespace GriauleRex {
 
 			public readonly DigitalOutput Backlight;
 
-			public RexDisplay(RexDevice rex) {
+			internal RexDisplay(RexDevice rex) {
 				this.Rex = rex;
 				this.Backlight = new DigitalOutput(rex, DigitalOutput.DigitalOutputType.DisplayBacklight, 0);
 			}

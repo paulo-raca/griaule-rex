@@ -77,7 +77,8 @@ namespace Sample {
 				while (true) {
 					foreach (RexDevice.SerialPort serial in rex.SerialPorts) {
 						using (Stream stream = serial.Open()) {
-							stream.WriteFully(Encoding.ASCII.GetBytes("Foo Bar 123\n"));
+							byte[] buffer = Encoding.ASCII.GetBytes("Foo Bar 123\n");
+							stream.Write(buffer, 0, buffer.Length);
 							stream.Dispose();
 						}
 						await Task.Delay (500);
