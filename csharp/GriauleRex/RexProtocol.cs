@@ -8,35 +8,35 @@ namespace GriauleRex {
 
 	public abstract class RexProtocol {
 		
-		protected static Encoding STRING_ENCODING = Encoding.ASCII;
+		internal static Encoding STRING_ENCODING = Encoding.ASCII;
 
-		protected const int PROTOCOL_PREFIX = 0x30584552; // "REX0" as a integer, for convenience
+		internal const int PROTOCOL_PREFIX = 0x30584552; // "REX0" as a integer, for convenience
 
-		protected const int COMMAND_DISCOVERY          = 0x01;
-		protected const int COMMAND_CONNECTION_REQUEST = 0x02;
-		protected const int COMMAND_FEATURES_REQUEST   = 0x0a;
-		protected const int COMMAND_FEATURES_RESPONSE  = 0x0b;
-		protected const int COMMAND_RESET              = 0x0c;
-		protected const int COMMAND_ID_REQUEST         = 0x0d;
-		protected const int COMMAND_ID_RESPONSE        = 0x0e;
+		internal const int COMMAND_DISCOVERY          = 0x01;
+		internal const int COMMAND_CONNECTION_REQUEST = 0x02;
+		internal const int COMMAND_FEATURES_REQUEST   = 0x0a;
+		internal const int COMMAND_FEATURES_RESPONSE  = 0x0b;
+		internal const int COMMAND_RESET              = 0x0c;
+		internal const int COMMAND_ID_REQUEST         = 0x0d;
+		internal const int COMMAND_ID_RESPONSE        = 0x0e;
 
-		protected const int COMMAND_IO                 = 0x12;
-		protected const int COMMAND_INPUT_CHANGED      = 0x3c;
-		protected const int COMMAND_IMAGE_ACQUIRED     = 0x46;
-		protected const int COMMAND_KEY_TYPED          = 0x50;
+		internal const int COMMAND_IO                 = 0x12;
+		internal const int COMMAND_INPUT_CHANGED      = 0x3c;
+		internal const int COMMAND_IMAGE_ACQUIRED     = 0x46;
+		internal const int COMMAND_KEY_TYPED          = 0x50;
 
-		protected const int COMMAND_DISPLAY_INITIALIZE       = 0x1e;
-		protected const int COMMAND_DISPLAY_CLEAR            = 0x1f;
-		protected const int COMMAND_DISPLAY_SET_ENTRY_MODE   = 0x21;
-		protected const int COMMAND_DISPLAY_SET_CURSOR       = 0x23;
-		protected const int COMMAND_DISPLAY_MOVE             = 0x24;
-		protected const int COMMAND_DISPLAY_WRITE            = 0x28;
+		internal const int COMMAND_DISPLAY_INITIALIZE       = 0x1e;
+		internal const int COMMAND_DISPLAY_CLEAR            = 0x1f;
+		internal const int COMMAND_DISPLAY_SET_ENTRY_MODE   = 0x21;
+		internal const int COMMAND_DISPLAY_SET_CURSOR       = 0x23;
+		internal const int COMMAND_DISPLAY_MOVE             = 0x24;
+		internal const int COMMAND_DISPLAY_WRITE            = 0x28;
 
-		protected const int COMMAND_RS232_OPEN       = 0x32;
-		protected const int COMMAND_RS232_SET_MODE   = 0x33;
-		protected const int COMMAND_RS232_READ       = 0x34;
-		protected const int COMMAND_RS232_WRITE      = 0x35;
-		protected const int COMMAND_RS232_CLOSE      = 0x36;
+		internal const int COMMAND_RS232_OPEN       = 0x32;
+		internal const int COMMAND_RS232_SET_MODE   = 0x33;
+		internal const int COMMAND_RS232_READ       = 0x34;
+		internal const int COMMAND_RS232_WRITE      = 0x35;
+		internal const int COMMAND_RS232_CLOSE      = 0x36;
 
 		protected delegate void RawMessageReceivedEventHandler(byte[] args);
 

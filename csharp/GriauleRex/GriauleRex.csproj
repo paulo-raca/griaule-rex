@@ -37,6 +37,11 @@
     <Compile Include="RexDevice.cs" />
     <Compile Include="RexProtocol.cs" />
     <Compile Include="StreamHack.cs" />
+    <Compile Include="Features.cs" />
+    <Compile Include="DigitalInput.cs" />
+    <Compile Include="DigitalOutput.cs" />
+    <Compile Include="Display.cs" />
+    <Compile Include="SerialPort.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>

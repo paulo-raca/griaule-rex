@@ -73,6 +73,11 @@ namespace GriauleRex {
 			SendMessage(COMMAND_CONNECTION_REQUEST, stream.GetBuffer(), rexUdpEndpoint);
 		}
 
+
+		public override String ToString() {
+			return "[Rex Client @" + tcpServer.LocalEndpoint + "]";
+		}
+
 		public void Dispose() {
 			udpClient.Close ();
 			tcpServer.Stop ();

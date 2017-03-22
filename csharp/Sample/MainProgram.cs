@@ -14,6 +14,7 @@ namespace Sample {
 
 		public static void Main (string[] args) {
 			using (RexClient rexClient = new RexClient ()) {
+				Console.WriteLine ("Rex Client is " + rexClient);
 
 				rexClient.Discovered += (name, mac, ip, mask, gateway) => {
 					Console.WriteLine ("Received discovery from " + name + " / " + mac + " / " + ip + " / " + mask + " / " + gateway);
@@ -28,13 +29,10 @@ namespace Sample {
 					Console.WriteLine ("Leds: " + String.Join(", ", rex.Leds));
 					Console.WriteLine ("Buzzer: " + rex.Buzzer);
 					Console.WriteLine ("Display: " + rex.Display);
-					rex.Relays[0].toggle (100, 100, 2);
-					rex.Buzzer.toggle(10, 10, 4);
 					rex.Display.WriteAt ("Foobar", 1, 1);
 					rex.Display.Write ("Bah");
-					rex.Display.Backlight.toggle (100, 100);
 
-					foreach (RexDevice.DigitalInput input in rex.DigitalInputs) {
+					foreach (DigitalInput input in rex.DigitalInputs) {
 						input.InputChanged += (newValue) => {
 							Console.WriteLine ("Input changed: " + input);
 						};
@@ -75,7 +73,7 @@ namespace Sample {
 		private static async void testSerialPorts(RexDevice rex) {
 			try {
 				while (true) {
-					foreach (RexDevice.SerialPort serial in rex.SerialPorts) {
+					foreach (SerialPort serial in rex.SerialPorts) {
 						using (Stream stream = serial.Open()) {
 							byte[] buffer = Encoding.ASCII.GetBytes("Foo Bar 123\n");
 							stream.Write(buffer, 0, buffer.Length);
@@ -91,24 +89,21 @@ namespace Sample {
 
 		private static async void toggleRandomStuff(RexDevice rex) {
 			try {
-				List<RexDevice.DigitalOutput> pins = new List<RexDevice.DigitalOutput> ();
-				pins.AddRange (rex.Relays);
+				List<DigitalOutput> pins = new List<DigitalOutput> ();
 				pins.AddRange (rex.Leds);
+				pins.AddRange (rex.Relays);
 				pins.Add (rex.Buzzer);
 				pins.Add (rex.Display.Backlight);
 
 				while (true) {
-					foreach (RexDevice.DigitalOutput pin in pins) {
-						pin.toggle (100, 100, 2);
-						await Task.Delay (500);
+					foreach (DigitalOutput pin in pins) {
+						pin.Hold (600);
+						await Task.Delay (400);
 					}
 				}
 			} catch (ObjectDisposedException) {
 				Console.WriteLine ("Rex has disconnected, stopping toggleRandomStuff()");
 			}
 		}
-
 	}
-
 }
-
