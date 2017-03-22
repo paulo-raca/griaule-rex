@@ -77,5 +77,25 @@ namespace GriauleRex {
 			RawListeners [cmd] += wrapper;
 			return await task.Task;
 		}
+
+
+
+		protected class DefaultDictionary<TKey, TValue> : Dictionary<TKey, TValue> {
+
+			public new TValue this[TKey key] {
+				get {
+					TValue val;
+					if (!TryGetValue(key, out val)) {
+						val = default(TValue);
+						Add(key, val);
+					}
+					return val;
+				}
+
+				set { 
+					base[key] = value; 
+				}
+			}
+		}
 	}
 }

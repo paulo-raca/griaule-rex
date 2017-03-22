@@ -83,7 +83,14 @@ namespace GriauleRex {
 			MemoryStream stream = new MemoryStream (payload);
 
 			String name = STRING_ENCODING.GetString(stream.ReadFully(12));
-			PhysicalAddress mac = new PhysicalAddress(Util.parseHex(STRING_ENCODING.GetString(stream.ReadFully(12))));
+			PhysicalAddress mac = new PhysicalAddress (new byte[] {
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16),
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16),
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16),
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16),
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16),
+				Convert.ToByte (STRING_ENCODING.GetString (stream.ReadFully (2)), 16)
+			});
 			IPAddress ip = new IPAddress(stream.ReadFully(4));
 			IPAddress mask = new IPAddress(stream.ReadFully(4));
 			IPAddress gateway = new IPAddress(stream.ReadFully(4));

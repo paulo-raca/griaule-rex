@@ -37,7 +37,6 @@
     <Compile Include="RexDevice.cs" />
     <Compile Include="RexProtocol.cs" />
     <Compile Include="StreamHack.cs" />
-    <Compile Include="Util.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
 </Project>
